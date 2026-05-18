@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BATUR TOKYO 業務ポータル</title>
+  <style>
+    :root {
+      --batur-dark: #24170f;
+      --batur-brown: #5a3a25;
+      --batur-gold: #c8a45d;
+      --batur-bg: #f7f3ea;
+      --batur-card: #fffaf0;
+      --batur-text: #2a211b;
+      --batur-muted: #7b6a57;
+      --batur-green: #24382f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--batur-bg);
+      color: var(--batur-text);
+    }
+
+    header {
+      background: linear-gradient(135deg, rgba(36, 23, 15, 0.96), rgba(36, 56, 47, 0.94));
+      color: white;
+      padding: 28px 18px 24px;
+      border-radius: 0 0 28px 28px;
+      box-shadow: 0 8px 24px rgba(36, 23, 15, 0.25);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      color: #f3ead7;
+      font-size: 14px;
+    }
+
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .section-card,
+    .summary-card,
+    .menu-button,
+    .manual-result {
+      background: var(--batur-card);
+      border: 1px solid rgba(200, 164, 93, 0.28);
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(36, 23, 15, 0.08);
+    }
+
+    .section-card {
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .section-card h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    .mini-note {
+      color: var(--batur-muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .today-panel {
+      background: linear-gradient(135deg, #5a3a25, #24382f);
+      color: white;
+    }
+
+    .today-label {
+      font-size: 13px;
+      color: #f3ead7;
+      font-weight: 700;
+    }
+
+    .today-date {
+      margin-top: 4px;
+      font-size: 27px;
+      font-weight: 800;
+    }
+
+    .today-events {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .today-event {
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .home-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .summary-card {
+      padding: 16px;
+    }
+
+    .summary-card .label {
+      color: var(--batur-muted);
+      font-size: 13px;
+    }
+
+    .summary-card .value {
+      font-size: 23px;
+      font-weight: 800;
+      margin-top: 6px;
+    }
+
+    .weekly-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .weekly-header h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .calendar-nav {
+      width: 38px;
+      height: 38px;
+      border: none;
+      border-radius: 50%;
+      background: #efe5d2;
+      color: var(--batur-brown);
+      font-size: 24px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .weekly-calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .week-day {
+      min-height: 132px;
+      border: 1px solid #e4d7bd;
+      border-radius: 14px;
+      padding: 10px;
+      background: #fffdf7;
+    }
+
+    .week-day.today {
+      border: 2px solid var(--batur-gold);
+      background: #fff7e5;
+    }
+
+    .weekday-name {
+      color: var(--batur-muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .weekday-date {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 4px;
+      width: 30px;
+      height: 30px;
+      font-weight: 800;
+    }
+
+    .week-day.today .weekday-date {
+      background: var(--batur-gold);
+      color: var(--batur-dark);
+      border-radius: 50%;
+    }
+
+    .week-events {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .week-event {
+      border-radius: 999px;
+      padding: 4px 7px;
+      font-size: 11px;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+
+    .event-cloth { background: #e9f1e8; color: #2f5f3e; }
+    .event-cleaning { background: #f6ead0; color: #8a6426; }
+    .event-shift { background: #f4dfd7; color: #8a3b2e; }
+    .event-uniform { background: #e8e1d6; color: #5a3a25; }
+
+    .menu-grid,
+    .manual-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .menu-button,
+    .manual-button {
+      border: none;
+      min-height: 104px;
+      padding: 16px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      color: var(--batur-dark);
+    }
+
+    .manual-button {
+      background: var(--batur-card);
+      border: 1px solid rgba(200, 164, 93, 0.28);
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(36, 23, 15, 0.08);
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .menu-button:hover,
+    .manual-button:hover,
+    .manual-result:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(36, 23, 15, 0.14);
+    }
+
+    .menu-icon {
+      font-size: 30px;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .menu-title {
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .back-button,
+    .primary-button,
+    .reset-button {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .back-button {
+      width: auto;
+      background: var(--batur-dark);
+      color: white;
+      margin-bottom: 14px;
+      padding: 10px 16px;
+    }
+
+    .primary-button {
+      background: var(--batur-brown);
+      color: white;
+      margin-top: 16px;
+    }
+
+    .primary-button:hover {
+      background: var(--batur-dark);
+    }
+
+    .done-button {
+      background: #2f6b3f;
+    }
+
+    .reset-button {
+      background: #ede3d2;
+      color: var(--batur-dark);
+      margin-top: 10px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 11px;
+      margin-top: 6px;
+      border: 1px solid #d9cbb2;
+      border-radius: 12px;
+      font-size: 15px;
+      background: #fffdf7;
+    }
+
+    textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    .manual-subtitle {
+      margin: 22px 0 8px;
+      font-size: 16px;
+      color: var(--batur-dark);
+    }
+
+    .manual-result {
+      padding: 14px;
+      margin-top: 12px;
+      cursor: pointer;
+    }
+
+    .manual-result-title {
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .manual-result-body {
+      white-space: pre-line;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .highlight {
+      background: #fff176;
+      font-weight: 800;
+      padding: 0 2px;
+    }
+
+    .check-item {
+      padding: 14px 0;
+      border-bottom: 1px solid #eadfc9;
+    }
+
+    .check-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .check-actions label {
+      margin: 0;
+      background: #efe5d2;
+      border-radius: 999px;
+      padding: 8px 11px;
+      cursor: pointer;
+    }
+
+    .check-actions input {
+      width: auto;
+      margin: 0 4px 0 0;
+    }
+
+    @media (max-width: 700px) {
+      .weekly-calendar {
+        grid-template-columns: 1fr;
+      }
+
+      .week-day {
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>BATUR TOKYO</h1>
+    <p>衛生・予定・棚卸し・マニュアルをここに集約</p>
+  </header>
+
+  <main>
+    <section id="home" class="page active">
+      <div class="section-card today-panel">
+        <div class="today-label">TODAY</div>
+        <div class="today-date" id="todayDateText"></div>
+        <div class="today-events" id="todayEvents"></div>
+      </div>
+
+      <div class="home-summary">
+        <div class="summary-card">
+          <div class="label">個人衛生チェック</div>
+          <div class="value" id="personalHygieneStatus">未提出</div>
+        </div>
+        <div class="summary-card">
+          <div class="label">衛生チェック</div>
+          <div class="value" id="hygieneStatus">未提出</div>
+        </div>
+        <div class="summary-card">
+          <div class="label">今日の未完了</div>
+          <div class="value" id="todayIncomplete">2件</div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="weekly-header">
+          <button class="calendar-nav" onclick="changeWeek(-1)">‹</button>
+          <h2 id="weeklyTitle">今週の予定</h2>
+          <button class="calendar-nav" onclick="changeWeek(1)">›</button>
+        </div>
+        <div id="weeklyCalendar" class="weekly-calendar"></div>
+      </div>
+
+      <div class="section-card">
+        <h2>業務メニュー</h2>
+        <div class="menu-grid">
+          <button class="menu-button" onclick="showPage('hygiene')">
+            <span class="menu-icon">🧹</span>
+            <span class="menu-title">衛生チェック</span>
+          </button>
+          <button class="menu-button" onclick="showPage('inventory')">
+            <span class="menu-icon">📦</span>
+            <span class="menu-title">棚卸し</span>
+          </button>
+          <button class="menu-button" onclick="window.open('ここに引き継ぎURLを入れてください', '_blank')">
+            <span class="menu-icon">📝</span>
+            <span class="menu-title">引き継ぎ</span>
+          </button>
+          <button class="menu-button" onclick="showPage('trouble')">
+            <span class="menu-icon">🚨</span>
+            <span class="menu-title">トラブル報告</span>
+          </button>
+          <button class="menu-button" onclick="showPage('manual')">
+            <span class="menu-icon">📚</span>
+            <span class="menu-title">マニュアル</span>
+          </button>
+          <button class="menu-button" onclick="showPage('personalHygieneExternal')">
+            <span class="menu-icon">🧼</span>
+            <span class="menu-title">個人衛生チェック</span>
+          </button>
+          <button class="menu-button" onclick="window.location.href='https://docs.google.com/forms/d/e/1FAIpQLSc3jVBxaIwJ0sj28HhKsXiXn1E_IHpzgaUeF-tyHVqPzYakmg/viewform?usp=header'">
+            <span class="menu-icon">⏰</span>
+            <span class="menu-title">遅刻・欠勤連絡</span>
+          </button>
+          <button class="menu-button" onclick="window.location.href='https://id.jobcan.jp/users/sign_in'">
+            <span class="menu-icon">🕒</span>
+            <span class="menu-title">勤怠</span>
+          </button>
+          <button class="menu-button" onclick="window.location.href='https://docs.google.com/spreadsheets/d/14tLTFE0YvoO_yW-u61aSDWJ0e3wxAzR8jw47MO4x-NY/edit?pli=1&gid=1472763462#gid=1472763462'">
+            <span class="menu-icon">📅</span>
+            <span class="menu-title">シフト</span>
+          </button>
+          <button class="menu-button" onclick="window.location.href='https://www.pay-look.com/users/Login.aspx?c=0zoxni#bsctrl'">
+            <span class="menu-icon">💴</span>
+            <span class="menu-title">給与明細</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="personalHygieneExternal" class="page">
+      <button class="back-button" onclick="showPage('home')">← ホームへ戻る</button>
+      <div class="section-card">
+        <h2>個人衛生チェック</h2>
+        <p class="mini-note">外部フォームで送信後、この画面に戻って「提出済みにする」を押してください。</p>
+        <button class="primary-button" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSe-sRTDzN9mAhLo0QUZcCDajPviOoGC063eiSUF76SRMRAoaQ/viewform', '_blank')">外部フォームを開く</button>
+        <button class="primary-button done-button" onclick="markPersonalHygieneDone()">提出済みにする</button>
+        <button class="reset-button" onclick="resetPersonalHygieneToday()">今日の提出済みを取り消す</button>
+      </div>
+    </section>
+
+    <section id="hygiene" class="page">
+      <button class="back-button" onclick="showPage('home')">← ホームへ戻る</button>
+      <div class="section-card">
+        <h2>衛生セルフチェック</h2>
+        <p class="mini-note">OK / NG / 対象外を選択してください。</p>
+        <label>チェック担当者</label>
+        <input id="hygieneStaff" placeholder="名前を入力" />
+        <div id="hygieneChecklist"></div>
+        <button class="primary-button" onclick="finishHygieneCheck()">チェック完了</button>
+      </div>
+    </section>
+
+    <section id="inventory" class="page">
+      <button class="back-button" onclick="showPage('home')">← ホームへ戻る</button>
+      <div class="section-card">
+        <h2>棚卸し</h2>
+        <label>会場・保管場所</label>
+        <input placeholder="例：バーカウンター、倉庫、控室①" />
+        <label>商材名</label>
+        <input placeholder="例：ビール、ワイン、備品名" />
+        <label>数量</label>
+        <input type="number" placeholder="例：12" />
+        <label>メモ</label>
+        <textarea placeholder="例：箱未開封、残り少ない など"></textarea>
+        <button class="primary-button" onclick="fakeSubmit()">登録する</button>
+      </div>
+    </section>
+
+    <section id="trouble" class="page">
+      <button class="back-button" onclick="showPage('home')">← ホームへ戻る</button>
+      <div class="section-card">
+        <h2>トラブル報告</h2>
+        <label>発生場所</label>
+        <input placeholder="例：メイン、チャペル、ヴィラ、控室" />
+        <label>内容</label>
+        <textarea placeholder="何が起きたかを入力"></textarea>
+        <label>対応状況</label>
+        <select>
+          <option>未対応</option>
+          <option>対応中</option>
+          <option>対応済み</option>
+        </select>
+        <button class="primary-button" onclick="fakeSubmit()">報告する</button>
+      </div>
+    </section>
+
+    <section id="manual" class="page">
+      <button class="back-button" onclick="showPage('home')">← ホームへ戻る</button>
+      <div class="section-card">
+        <h2>マニュアル</h2>
+        <p class="mini-note">キーワード検索で、本文中の該当箇所も表示されます。</p>
+        <label>マニュアル検索</label>
+        <input id="manualSearchInput" type="text" placeholder="例：氷、グラス、ビール、製氷機" oninput="searchManual()" />
+        <div id="manualSearchResults"></div>
+        <p id="manualNoResult" class="mini-note" style="display:none;">該当するマニュアルがありません。</p>
+
+        <div class="manual-grid">
+          <button class="manual-button" onclick="showManualAlert('バー')">🍸 バー</button>
+          <button class="manual-button" onclick="showManualAlert('ホール')">🍽️ ホール</button>
+          <button class="manual-button" onclick="showManualAlert('商材管理')">📦 商材管理</button>
+          <button class="manual-button" onclick="showManualAlert('洗い場')">🧽 洗い場</button>
+          <button class="manual-button" onclick="showManualAlert('OPEN・CLOSE作業一覧')">🔓 OPEN・CLOSE作業一覧</button>
+        </div>
+
+        <h3 class="manual-subtitle">プランごと</h3>
+        <div class="manual-grid">
+          <button class="manual-button" onclick="showManualAlert('大皿（テーブルシェア）')">🍽️ 大皿<br>テーブルシェア</button>
+          <button class="manual-button" onclick="showManualAlert('フルコース')">🍷 フルコース</button>
+          <button class="manual-button" onclick="showManualAlert('ビュッフェ')">🥘 ビュッフェ</button>
+        </div>
+
+        <h3 class="manual-subtitle">会場ごとの説明</h3>
+        <div class="manual-grid">
+          <button class="manual-button" onclick="showManualAlert('メイン')">🏛️ メイン</button>
+          <button class="manual-button" onclick="showManualAlert('チャペル')">⛪ チャペル</button>
+          <button class="manual-button" onclick="showManualAlert('ヴィラ')">🌿 ヴィラ</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="manualDetail" class="page">
+      <button class="back-button" onclick="showPage('manual')">← マニュアルへ戻る</button>
+      <div class="section-card">
+        <h2 id="manualTitle">マニュアル</h2>
+        <div id="manualBody" style="white-space: pre-line; line-height: 1.8;"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(function(page) {
+        page.classList.remove('active');
+      });
+      document.getElementById(pageId).classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    function fakeSubmit() {
+      alert('送信できました！※今は試作品なので保存はまだされません');
+    }
+
+    function getTodayKey() {
+      const today = new Date();
+      return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    }
+
+    function updatePersonalHygieneStatus() {
+      const status = document.getElementById('personalHygieneStatus');
+      const savedDate = localStorage.getItem('personalHygieneSubmittedDate');
+      if (savedDate === getTodayKey()) {
+        status.textContent = '提出済み';
+        status.style.color = '#2f6b3f';
+      } else {
+        status.textContent = '未提出';
+        status.style.color = '#8a3b2e';
+      }
+      updateIncompleteCount();
+    }
+
+    function markPersonalHygieneDone() {
+      localStorage.setItem('personalHygieneSubmittedDate', getTodayKey());
+      updatePersonalHygieneStatus();
+      alert('個人衛生チェックを提出済みにしました');
+      showPage('home');
+    }
+
+    function resetPersonalHygieneToday() {
+      localStorage.removeItem('personalHygieneSubmittedDate');
+      updatePersonalHygieneStatus();
+      alert('今日の提出済みを取り消しました');
+    }
+
+    function updateIncompleteCount() {
+      let count = 0;
+      if (document.getElementById('personalHygieneStatus').textContent === '未提出') count++;
+      if (document.getElementById('hygieneStatus').textContent === '未提出') count++;
+      document.getElementById('todayIncomplete').textContent = `${count}件`;
+    }
+
+    let weekOffset = 0;
+
+    function getScheduleEvents(date) {
+      const day = date.getDate();
+      const weekday = date.getDay();
+      const events = [];
+
+      if ([0, 2, 3, 5].includes(weekday)) {
+        events.push({ label: 'クロス出し日', className: 'event-cloth' });
+      }
+
+      if (weekday === 1) {
+        events.push({ label: '清掃日', className: 'event-cleaning' });
+        events.push({ label: '貸し出し制服チェック', className: 'event-uniform' });
+      }
+
+      if (day === 10 || day === 25) {
+        events.push({ label: 'シフト提出', className: 'event-shift' });
+      }
+
+      return events;
+    }
+
+    function getStartOfWeek(date) {
+      const start = new Date(date);
+      start.setDate(start.getDate() - start.getDay());
+      start.setHours(0, 0, 0, 0);
+      return start;
+    }
+
+    function renderWeeklyCalendar() {
+      const weeklyCalendar = document.getElementById('weeklyCalendar');
+      const weeklyTitle = document.getElementById('weeklyTitle');
+      const todayDateText = document.getElementById('todayDateText');
+      const todayEvents = document.getElementById('todayEvents');
+      const today = new Date();
+      const baseDate = new Date();
+      baseDate.setDate(today.getDate() + weekOffset * 7);
+
+      const startOfWeek = getStartOfWeek(baseDate);
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+      const weekNames = ['日', '月', '火', '水', '木', '金', '土'];
+      weeklyTitle.textContent = `${startOfWeek.getMonth() + 1}/${startOfWeek.getDate()} - ${endOfWeek.getMonth() + 1}/${endOfWeek.getDate()}`;
+      weeklyCalendar.innerHTML = '';
+
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(startOfWeek);
+        date.setDate(startOfWeek.getDate() + i);
+
+        const isToday =
+          date.getFullYear() === today.getFullYear() &&
+          date.getMonth() === today.getMonth() &&
+          date.getDate() === today.getDate();
+
+        const events = getScheduleEvents(date);
+        const eventHtml = events.map(function(event) {
+          return `<div class="week-event ${event.className}">${event.label}</div>`;
+        }).join('');
+
+        const dayBox = document.createElement('div');
+        dayBox.className = isToday ? 'week-day today' : 'week-day';
+        dayBox.innerHTML = `
+          <div class="weekday-name">${weekNames[date.getDay()]}</div>
+          <div class="weekday-date">${date.getDate()}</div>
+          <div class="week-events">${eventHtml || '<span class="mini-note">予定なし</span>'}</div>
+        `;
+        weeklyCalendar.appendChild(dayBox);
+      }
+
+      const todaySchedule = getScheduleEvents(today);
+      todayDateText.textContent = `${today.getMonth() + 1}月${today.getDate()}日（${weekNames[today.getDay()]}）`;
+      todayEvents.innerHTML = todaySchedule.length
+        ? todaySchedule.map(function(event) { return `<span class="today-event">${event.label}</span>`; }).join('')
+        : '<span class="today-event">予定なし</span>';
+    }
+
+    function changeWeek(amount) {
+      weekOffset += amount;
+      renderWeeklyCalendar();
+    }
+
+    const hygieneItems = [
+      'アルコール、ペーパータオル、ゴム手袋、ハンドソープが設置・補充されている',
+      '手洗いが正しく出来ている。手洗いシンクに汚れがない',
+      'HACCP関連の実施（温度管理、日誌、個人衛生）',
+      'キッチン、ホール内に段ボールが保管されていない',
+      '清掃用具が整頓されている',
+      'ウォッシャー周りが清潔である',
+      '排水トラップ、シンクオーバーフローが清掃されている',
+      '庫内に段ボール保管していない',
+      '賞味期限切れの商材がない',
+      '避難経路に物がない'
+    ];
+
+    function renderHygieneChecklist() {
+      const container = document.getElementById('hygieneChecklist');
+      container.innerHTML = '';
+
+      hygieneItems.forEach(function(item, index) {
+        const id = `hygiene-${index}`;
+        const div = document.createElement('div');
+        div.className = 'check-item';
+        div.innerHTML = `
+          <strong>${item}</strong>
+          <div class="check-actions">
+            <label><input type="radio" name="${id}" value="OK">OK</label>
+            <label><input type="radio" name="${id}" value="NG">NG</label>
+            <label><input type="radio" name="${id}" value="対象外">対象外</label>
+          </div>
+          <textarea placeholder="NGの場合のメモ"></textarea>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function finishHygieneCheck() {
+      const total = document.querySelectorAll('.check-item').length;
+      const checked = document.querySelectorAll('.check-actions input:checked').length;
+      const ngCount = document.querySelectorAll('.check-actions input[value="NG"]:checked').length;
+
+      if (checked < total) {
+        alert(`未チェック項目があります。${checked}/${total}件完了`);
+        return;
+      }
+
+      document.getElementById('hygieneStatus').textContent = '提出済み';
+      document.getElementById('hygieneStatus').style.color = '#2f6b3f';
+      updateIncompleteCount();
+      alert(`衛生チェック完了。NG項目：${ngCount}件`);
+      showPage('home');
+    }
+
+    const manualData = {
+      'バー': `
+① 氷・グラス残量確認
+② アルコール補充
+③ 注文順で提供
+④ 使用後は定位置へ戻す`,
+
+      'ホール': `
+① お客様案内
+② ドリンク提供
+③ 空き皿下げ
+④ 次の導線確認`,
+
+      '商材管理': `
+① 使用数確認
+② 不足報告
+③ 定位置へ返却
+④ 月末棚卸し記録`,
+
+      '洗い場': `
+① 分別
+② 予洗い
+③ 食洗機
+④ 乾燥後収納`,
+
+      'OPEN・CLOSE作業一覧': `
+OPEN:
+・備品確認
+・清掃
+・セッティング
+
+CLOSE:
+・洗浄
+・補充
+・消灯
+・施錠`,
+
+      '大皿（テーブルシェア）': `
+・料理を取り分けやすく配置
+・サーブ順確認
+・取り皿不足注意`,
+
+      'フルコース': `
+・提供タイミング最優先
+・下げ判断
+・ドリンク連携徹底`,
+
+      'ビュッフェ': `
+・料理補充
+・トング交換
+・列整理
+・衛生確認`,
+
+      'メイン': `
+・導線が長いため配膳ルート確認`,
+
+      'チャペル': `
+・静粛対応
+・案内位置
+・入退場動線確認`,
+
+      'ヴィラ': `
+・貸切動線確認
+・備品忘れ注意`
+    };
+
+    function showManualAlert(title) {
+      document.getElementById('manualTitle').textContent = title;
+      document.getElementById('manualBody').textContent = manualData[title] || 'マニュアル準備中';
+      showPage('manualDetail');
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/[&<>"']/g, function(match) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[match];
+      });
+    }
+
+    function highlightKeyword(text, keyword) {
+      const escapedText = escapeHtml(text);
+      const escapedKeyword = escapeHtml(keyword);
+      if (!escapedKeyword) return escapedText;
+      return escapedText.replaceAll(escapedKeyword, `<span class="highlight">${escapedKeyword}</span>`);
+    }
+
+    function searchManual() {
+      const keyword = document.getElementById('manualSearchInput').value.trim();
+      const resultArea = document.getElementById('manualSearchResults');
+      const noResult = document.getElementById('manualNoResult');
+
+      resultArea.innerHTML = '';
+      if (!keyword) {
+        noResult.style.display = 'none';
+        return;
+      }
+
+      let hitCount = 0;
+
+      Object.keys(manualData).forEach(function(title) {
+        const body = manualData[title];
+
+        if (title.includes(keyword) || body.includes(keyword)) {
+          hitCount++;
+          const result = document.createElement('div');
+          result.className = 'manual-result';
+          result.onclick = function() { showManualAlert(title); };
+          result.innerHTML = `
+            <div class="manual-result-title">項目名：${highlightKeyword(title, keyword)}</div>
+            <div class="manual-result-body">${highlightKeyword(body, keyword)}</div>
+          `;
+          resultArea.appendChild(result);
+        }
+      });
+
+      noResult.style.display = hitCount === 0 ? 'block' : 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      renderWeeklyCalendar();
+      renderHygieneChecklist();
+      updatePersonalHygieneStatus();
+      updateIncompleteCount();
+    });
+  </script>
+</body>
+</html>
